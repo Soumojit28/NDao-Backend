@@ -27,23 +27,23 @@ const proposalCount = async () => {
 
 router.use(express.json())
 router.get('/', async (req, res) => {
-    res.send('Working!')
+    return res.send('Working!')
 })
 
 router.get('/count', async (req, res) => {
     count = await proposalCount()
     console.log(count)
-    res.send({ 'count': count })
+    return res.send({ 'count': count })
 })
 
 router.get('/all', async (req, res) => {
     try{
         proposals.find({}).then((result)=>{
-            res.send(result)
+            return res.send(result)
         })
     }
     catch(err){
-        res.send(err).sendStatus(404)
+        return res.send(err).sendStatus(404)
     }
 })
 
@@ -66,14 +66,14 @@ router.post('/new', async (req, res) => {
             receiver: receiver
         }
         if (currentCount + 1 != proposalId) {
-            res.sendStatus(404)
+            return res.sendStatus(404)
         }
         else {
 
             let sign_check = await ethers.utils.verifyTypedData(domain, types, value, signature)
             if (sign_check != walletAddress) {
                 console.log('Sign check failed')
-                res.sendStatus(404)
+                return res.sendStatus(404)
             }
             else {
                 let new_proposal = new proposals({
@@ -81,16 +81,17 @@ router.post('/new', async (req, res) => {
                     contractAddress: contractAddress,
                     amount: amount,
                     receiver: receiver,
-                    signature: signature
+                    signature: signature,
+                    wallets: walletAddress
                 })
                 await new_proposal.save()
             }
-            res.sendStatus(200)
+            return res.sendStatus(200)
         }
     }
     catch (err) {
         console.log(err)
-        res.send(err).sendStatus(500)
+        return res.send(err).sendStatus(500)
     }
 })
 
@@ -115,21 +116,25 @@ router.post('/approve', async (req, res) => {
         
         if (sign_check != walletAddress) {
             console.log('sign failed')
-            res.sendStatus(404)
+            return res.sendStatus(404)
         }
         else{
             console.log('updating data')
             console.log(find.signature.length)
             // await proposals.findByIdAndUpdate(proposalId,{approved:true})
-            await proposals.findByIdAndUpdate(proposalId,{ "$push":{signature:signature}, approved: find.signature.length >= 2? true: false},{ "new": true, "upsert": true })
+            if(find.wallets.includes(walletAddress)||find.wallets.includes(signature)){
+                return res.send('Already Exists')
+            }
+            await proposals.findByIdAndUpdate(proposalId,{ "$push":{signature:signature , wallets:walletAddress}, approved: find.signature.length >= 2? true: false},{ "new": true, "upsert": true })
 
-            res.sendStatus(200)
+            return res.sendStatus(200)
         }
         
     }
     catch (err) {
         console.log(err)
-        res.send(err).sendStatus(500)
+        return res.send(err)
+        
     }
 })
 

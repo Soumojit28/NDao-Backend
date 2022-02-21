@@ -19,4 +19,4 @@ mongoose.connect(process.env.DATABASE_URI)
 app.use('/proposal',proposal)
 
 
-app.listen(8000, () => {console.log('Server listening')})
+app.listen(process.env.PORT||8000, () => {console.log('Server listening')})

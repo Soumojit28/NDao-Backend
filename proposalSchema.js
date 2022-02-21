@@ -5,6 +5,7 @@ const proposal = new mongoose.Schema({
     contractAddress :String,
     amount : Number,
     receiver : String,
+    wallets: [String],
     signature : [String],
     approved : {
         type : Boolean,
