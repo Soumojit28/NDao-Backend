@@ -1,0 +1,13 @@
+version: '3.4'
+
+services:
+  ndaobackend:
+    image: ndaobackend
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    environment:
+      NODE_ENV: production
+    ports:
+      - 3000:3000
+      - DATABASE_URI:mongodb+srv://VoidOp:VoidOp123@cluster0.d99ak.mongodb.net/Ndao
