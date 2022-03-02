@@ -65,15 +65,18 @@ router.post('/new', async (req, res) => {
             amount: amount,
             receiver: receiver
         }
+        console.log(value , signature, walletAddress)
         if (currentCount + 1 != proposalId) {
-            return res.sendStatus(404)
+            console.log('Count not matched!')
+            return res.status(500).send('Count not matched!')
         }
         else {
 
             let sign_check = await ethers.utils.verifyTypedData(domain, types, value, signature)
-            if (sign_check != walletAddress) {
+            console.log(sign_check)
+            if (sign_check.toLowerCase() != walletAddress.toLowerCase()) {
                 console.log('Sign check failed')
-                return res.sendStatus(404)
+                return res.status(500).send('Sign check failed')
             }
             else {
                 let new_proposal = new proposals({
@@ -114,9 +117,9 @@ router.post('/approve', async (req, res) => {
         console.log(value)
         const sign_check =  await ethers.utils.verifyTypedData(domain, types, value, signature)
         
-        if (sign_check != walletAddress) {
+        if (sign_check.toLowerCase() != walletAddress.toLowerCase()) {
             console.log('sign failed')
-            return res.sendStatus(404)
+            return res.status(500).send('Sign check failed')
         }
         else{
             console.log('updating data')
