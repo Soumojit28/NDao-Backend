@@ -3,8 +3,7 @@ const mongoose =require('mongoose');
 const proposal = new mongoose.Schema({
     _id:Number,
     contractAddress :String,
-    amount : Number,
-    receiver : String,
+    encodedFunction: String,
     wallets: [String],
     signature : [String],
     approved : {

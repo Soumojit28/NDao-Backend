@@ -1,4 +1,5 @@
 require('dotenv').config()
+const abi = require('./abi.json')
 const express = require('express');
 var router = express.Router();
 const proposals = require('./proposalSchema.js')
@@ -11,14 +12,29 @@ const domain = {
     verifyingContract: '0xA710BfA9D9E9a4fe7c5b3520c0D73A94077156C6'
 };
 
+// const types = {
+//     Signer: [
+//         { name: 'proposalId', type: 'uint256' },
+//         { name: 'contractAddress', type: 'address' },
+//         { name: 'amount', type: 'uint256' },
+//         { name: 'receiver', type: 'address' },
+//     ],
+// };
 const types = {
     Signer: [
         { name: 'proposalId', type: 'uint256' },
         { name: 'contractAddress', type: 'address' },
-        { name: 'amount', type: 'uint256' },
-        { name: 'receiver', type: 'address' },
+        { name: 'functionCall', type: 'bytes' },
     ],
-};
+}
+
+const encodeSinger = async(functionName,functionParams) => {
+    //let ABI = ["function mint(uint amount) external"];
+    let iface = new ethers.utils.Interface(abi);
+    const n= await iface.encodeFunctionData(functionName, functionParams);
+    console.log(n)
+    return n
+}
 
 const proposalCount = async () => {
     const count = await proposals.find({}).count()
@@ -50,20 +66,21 @@ router.get('/all', async (req, res) => {
 router.post('/new', async (req, res) => {
     try {
         const contractAddress = req.body.contractAddress
-        const amount = req.body.amount
-        const receiver = req.body.receiver
+        // const amount = req.body.amount
+        // const receiver = req.body.receiver
         const signature = req.body.signature
         const proposalId = req.body.proposalId
         const walletAddress = req.body.walletAddress
+        const functionName = req.body.functionName
+        const functionParams = req.body.functionParams
 
         const currentCount = await proposalCount()
         console.log(currentCount)
-
+        const encodedFunction = await encodeSinger(functionName,functionParams)
         const value = {
             proposalId: proposalId,
             contractAddress: contractAddress,
-            amount: amount,
-            receiver: receiver
+            functionCall: ethers.utils.arrayify(encodedFunction)
         }
         console.log(value , signature, walletAddress)
         if (currentCount + 1 != proposalId) {
@@ -82,8 +99,7 @@ router.post('/new', async (req, res) => {
                 let new_proposal = new proposals({
                     _id: proposalId,
                     contractAddress: contractAddress,
-                    amount: amount,
-                    receiver: receiver,
+                    encodedFunction: encodedFunction,
                     signature: signature,
                     wallets: walletAddress
                 })
@@ -106,6 +122,7 @@ router.post('/approve', async (req, res) => {
         const walletAddress = req.body.walletAddress
         const signature = req.body.signature
         const proposalId = req.body.proposalId
+        
         const find = await proposals.findById(proposalId)
         const value = {
             proposalId: proposalId,
