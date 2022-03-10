@@ -71,13 +71,15 @@ router.post('/new', async (req, res) => {
         const contractAddress = req.body.contractAddress
         // const amount = req.body.amount
         // const receiver = req.body.receiver
+        console.log('req.body',req.body)
+
         const signature = req.body.signature
         const proposalId = req.body.proposalId
         const walletAddress = req.body.walletAddress
         const functionName = req.body.functionName
         const functionParams = req.body.functionParams
-        const amount = req.body.amount
-        const gas = req.body.gas
+        const amount = Number(req.body.amount)
+        const gas = Number(req.body.gas)
 
         const currentCount = await proposalCount()
         console.log(currentCount)
