@@ -61,6 +61,7 @@ router.get('/all', async (req, res) => {
         })
     }
     catch(err){
+        console.error(err.message)
         return res.send(err).sendStatus(404)
     }
 })
