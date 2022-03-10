@@ -24,6 +24,8 @@ const types = {
     Signer: [
         { name: 'proposalId', type: 'uint256' },
         { name: 'contractAddress', type: 'address' },
+        { name: 'amount', type: 'uint256' },
+        { name: 'gas', type: 'uint256' },
         { name: 'functionCall', type: 'bytes' },
     ],
 }
@@ -73,6 +75,8 @@ router.post('/new', async (req, res) => {
         const walletAddress = req.body.walletAddress
         const functionName = req.body.functionName
         const functionParams = req.body.functionParams
+        const amount = req.body.amount
+        const gas = req.body.gas
 
         const currentCount = await proposalCount()
         console.log(currentCount)
@@ -80,6 +84,8 @@ router.post('/new', async (req, res) => {
         const value = {
             proposalId: proposalId,
             contractAddress: contractAddress,
+            amount: amount,
+            gas: gas,
             functionCall: ethers.utils.arrayify(encodedFunction)
         }
         console.log(value , signature, walletAddress)
@@ -101,7 +107,9 @@ router.post('/new', async (req, res) => {
                     contractAddress: contractAddress,
                     encodedFunction: encodedFunction,
                     signature: signature,
-                    wallets: walletAddress
+                    wallets: walletAddress,
+                    gas:gas,
+                    amount:amount,
                 })
                 await new_proposal.save()
             }
@@ -124,11 +132,18 @@ router.post('/approve', async (req, res) => {
         const proposalId = req.body.proposalId
         
         const find = await proposals.findById(proposalId)
+        // const value = {
+        //     proposalId: proposalId,
+        //     contractAddress: find.contractAddress,
+        //     amount: find.amount,
+        //     receiver: find.receiver
+        // }
         const value = {
             proposalId: proposalId,
             contractAddress: find.contractAddress,
             amount: find.amount,
-            receiver: find.receiver
+            gas: find.gas,
+            functionCall: ethers.utils.arrayify(find.encodedFunction)
         }
         console.log(walletAddress,signature,proposalId)
         console.log(value)
