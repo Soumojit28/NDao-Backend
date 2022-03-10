@@ -17,20 +17,25 @@ async function levelSigner(){
         name: "NDAO",
         version: "1",
         chainId: 80001,
-        verifyingContract: '0xF91E04f4C4aaf906eFBfD3A70EFba22D3fe07dC5'
+        verifyingContract: '0x23F9c5478d0F56a3566dbb671080217dEde570CB'
     };
     const types = {
         Signer: [
-            { name: 'proposalId', type: 'uint256' },
-            { name: 'contractAddress', type: 'address' },
-            { name: 'functionCall', type: 'bytes' },
-        ],
+            { name: "proposalId", type: "uint256" },
+            { name: "contractAddress", type: "address" },
+            { name: "amount", type: "uint256" },
+            { name: "gas", type: "uint256" },
+            { name: "functionCall", type: "bytes" },
+        ]
         
     };
     const value = {
-        proposalId: 2,
-        contractAddress : "0x435e0632714408413E51495aB44341F28F983012",
-        functionCall : ethers.utils.arrayify(await encodeSinger())
+        proposalId: 8,
+        contractAddress: "0x435e0632714408413e51495ab44341f28f983012",
+        amount:0,
+        gas:5000,
+        functionCall:  ethers.utils.arrayify(await encodeSinger())
+        
     }
     console.log(value)
     // const value = {

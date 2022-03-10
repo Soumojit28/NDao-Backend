@@ -97,7 +97,7 @@ router.post('/new', async (req, res) => {
         else {
 
             let sign_check = await ethers.utils.verifyTypedData(domain, types, value, signature)
-            console.log(sign_check)
+            console.log(sign_check,'signature_check')
             if (sign_check.toLowerCase() != walletAddress.toLowerCase()) {
                 console.log('Sign check failed')
                 return res.status(500).send('Sign check failed')
